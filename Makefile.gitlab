@@ -1,0 +1,25 @@
+GIT_COMMIT = $(CI_COMMIT_SHA)
+RELEASE_TAG = $(CI_COMMIT_TAG)
+PACKAGE_NAME ?= unknown-package  # se non definito
+PACKAGE_VERSION = $(RELEASE_TAG)
+# PUT /projects/:id/packages/generic/:package_name/:package_version/:file_name?status=:status
+# GET /projects/:id/packages/generic/:package_name/:package_version/:file_name
+# PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PACKAGE_VERSION}"
+# PACKAGE_REGISTRY_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/RPMS
+PACKAGE_REGISTRY_URL = ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PACKAGE_VERSION}
+
+# upload di multipli files, es:
+#   make gitlab_artifacts_upload ARTIFACTS="RPMS/*.rpm"
+gitlab_artifacts_upload:
+	@for O in $(ARTIFACTS); do 												\
+		make --no-print-directory gitlab_artifact_upload_file FILE="$$O"; 	\
+	done
+
+# upload di singolo file, es:
+#   make FILE=dir/xxx
+gitlab_artifact_upload_file:
+	BASEFILE=`basename ${FILE}` ;\
+	UPLOAD_URL="${PACKAGE_REGISTRY_URL}/$${BASEFILE}" ;\
+	echo Generic file $${FILE} to $${UPLOAD_URL} ;\
+	curl -ksS --header "JOB-TOKEN: $${CI_JOB_TOKEN}" --upload-file $${FILE} "$${UPLOAD_URL}" &&\
+	echo " OK "

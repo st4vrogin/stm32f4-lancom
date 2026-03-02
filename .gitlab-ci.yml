@@ -1,0 +1,44 @@
+stages:
+  - build
+  - releases
+
+default:
+
+variables:
+  GIT_COMMIT: $CI_COMMIT_SHA
+  RELEASE_TAG: $CI_COMMIT_TAG
+  PROJ_NAME: $CI_PROJECT_NAME
+  PACKAGE_NAME: TSCube
+  PACKAGE_VERSION: $RELEASE_TAG
+  PACKAGE_REGISTRY_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PROJ_NAME}/${PACKAGE_VERSION}
+
+hex:
+  stage: build
+  tags: [ siel_pipeline ]
+  only: [ tags ]
+#  when: manual
+  script:
+    - rm -fR build
+    - docker run --rm -v .:/data -w /data gcc-arm:latest make -j5 DEBUG=0 VERSION=${PACKAGE_VERSION}
+    - docker run --rm -v .:/data -w /data gcc-arm:latest fw_merger.pl -m mappature/mappatura_appl_x_loader.xml -f bin/${PACKAGE_NAME}-${PACKAGE_VERSION}.hex -o ${PACKAGE_NAME}-${PACKAGE_VERSION}.xml
+  after_script:
+    - sudo chown -R gitlab-runner:gitlab-runner build
+  artifacts:
+    name: ${PACKAGE_NAME}
+    paths:
+      - bin/${PACKAGE_NAME}-${PACKAGE_VERSION}.hex
+      - bin/${PACKAGE_NAME}-${PACKAGE_VERSION}.elf
+      - bin/${PACKAGE_NAME}-${PACKAGE_VERSION}.map
+      - bin/${PACKAGE_NAME}-${PACKAGE_VERSION}.bin
+      - ${PACKAGE_NAME}-${PACKAGE_VERSION}.xml
+
+zip_package:
+  stage: releases
+  tags: [ siel_pipeline ]
+  only: [ tags ]
+  variables:
+    PACKAGE: ${PACKAGE_NAME}-${PACKAGE_VERSION}.zip
+  script:
+    - zip -v ${PACKAGE} bin/${PACKAGE_NAME}-${PACKAGE_VERSION}.hex bin/${PACKAGE_NAME}-${PACKAGE_VERSION}.elf bin/${PACKAGE_NAME}-${PACKAGE_VERSION}.map bin/${PACKAGE_NAME}-${PACKAGE_VERSION}.bin ${PACKAGE_NAME}-${PACKAGE_VERSION}.xml
+    - "curl -k --upload-file ${PACKAGE} --header \"Authorization: Bearer ${CI_JOB_TOKEN}\" ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/${CI_COMMIT_TAG}/${PACKAGE}"
+  

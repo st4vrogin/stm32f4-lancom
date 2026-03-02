@@ -1,0 +1,26 @@
+{
+    "files.associations": {
+        "dp83848.h": "c",
+        "stdint.h": "c",
+        "stm32f4xx_hal.h": "c",
+        "spi_uart.h": "c",
+        "applicationdef.h": "c",
+        "fabparametri.h": "c",
+        "applicationdata.h": "c",
+        "paramlan.h": "c",
+        "lwip.h": "c",
+        "stm32f4xx_hal_conf.h": "c",
+        "stm32f4xx_hal_flash_ex.h": "c",
+        "stm32f4xx_hal_def.h": "c",
+        "stm32f4xx_hal_flash.h": "c",
+        "prmserialifab.h": "c",
+        "commondata.h": "c",
+        "types.h": "c",
+        "communictype.h": "c",
+        "commondef.h": "c",
+        "main.h": "c"
+    },
+    "stm32-for-vscode.openOCDPath": "C:\\OPENOCD\\OPENOCD-20230621-0.12.0\\BIN\\OPENOCD.EXE",
+    "cortex-debug.armToolchainPath": "C:\\PROGRAM FILES (X86)\\GNU ARM EMBEDDED TOOLCHAIN\\10 2021.10\\BIN",
+    "cortex-debug.openocdPath": "C:\\OPENOCD\\OPENOCD-20230621-0.12.0\\BIN\\OPENOCD.EXE"
+}

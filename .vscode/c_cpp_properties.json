@@ -1,0 +1,48 @@
+{
+  "configurations": [
+    {
+      "name": "STM32",
+      "includePath": [
+        "Application/Inc",
+        "Common/Inc",
+        "Core/Inc",
+        "Drivers/BSP/Components/dp83848",
+        "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+        "Drivers/CMSIS/Include",
+        "Drivers/STM32F4xx_HAL_Driver/Inc",
+        "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
+        "LWIP/App",
+        "LWIP/Target",
+        "Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc",
+        "Middlewares/ST/STM32_USB_Device_Library/Core/Inc",
+        "Middlewares/Third_Party/LwIP/src/include",
+        "Middlewares/Third_Party/LwIP/src/include/compat/posix",
+        "Middlewares/Third_Party/LwIP/src/include/compat/posix/arpa",
+        "Middlewares/Third_Party/LwIP/src/include/compat/posix/net",
+        "Middlewares/Third_Party/LwIP/src/include/compat/posix/sys",
+        "Middlewares/Third_Party/LwIP/src/include/compat/stdc",
+        "Middlewares/Third_Party/LwIP/src/include/lwip",
+        "Middlewares/Third_Party/LwIP/src/include/lwip/apps",
+        "Middlewares/Third_Party/LwIP/src/include/lwip/priv",
+        "Middlewares/Third_Party/LwIP/src/include/lwip/prot",
+        "Middlewares/Third_Party/LwIP/src/include/netif",
+        "Middlewares/Third_Party/LwIP/src/include/netif/ppp",
+        "Middlewares/Third_Party/LwIP/system",
+        "Middlewares/Third_Party/LwIP/system/arch",
+        "USB_DEVICE/App",
+        "USB_DEVICE/Target"
+      ],
+      "defines": [
+        "LWIP_INIT_DELAY",
+        "STM32F427xx",
+        "USA_LOADER",
+        "USE_HAL_DRIVER"
+      ],
+      "compilerPath": "C:\\PROGRAM FILES (X86)\\GNU ARM EMBEDDED TOOLCHAIN\\10 2021.10\\BIN\\ARM-NONE-EABI-GCC.EXE",
+      "cStandard": "c99",
+      "configurationProvider": "ms-vscode.makefile-tools",
+      "intelliSenseMode": "windows-gcc-arm"
+    }
+  ],
+  "version": 4
+}

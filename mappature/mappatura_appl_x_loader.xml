@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<Mappatura>
+		<Validita>
+			<FamigliaProd>TS</FamigliaProd>
+			<TipoMicro>1</TipoMicro>
+			<VersioniKernel>
+				<VersKernel MIN="3.0.0" MAX="3.255.255" />
+			</VersioniKernel>
+			<VersMasterMin>5.0.0</VersMasterMin>
+			<VersMasterMax>255.255.255</VersMasterMax>
+			<VersConsoleMin>0.0.0</VersConsoleMin>
+			<VersConsoleMax>255.255.255</VersConsoleMax>
+			<TipoConsole>-</TipoConsole>
+		</Validita>
+		<Impostazioni>
+			<FormatoFile>1</FormatoFile>
+			<Slice>256</Slice>
+			<NSkipFF>4</NSkipFF>
+			<ValoreClear>FF</ValoreClear>
+		</Impostazioni>
+		<Sezioni>
+			<!-- Sezioni per il download -->
+			<Sezione ID="0" StartAddress="00000000" EndAddress="00000000" Descrizione="Sezione fittizia" />
+			<Sezione ID="10" StartAddress="0800C000" EndAddress="0800FFFF" Descrizione="Sezione Parametri LAN" />
+			<Sezione ID="11" StartAddress="08040000" EndAddress="0805FFFF" Descrizione="Sezione Sbancamento" />
+			<Sezione ID="12" StartAddress="0810C000" EndAddress="0810FFFF" Descrizione="Sezione APP_SW_DESC" />
+			<Sezione ID="1" StartAddress="08120000" EndAddress="0815FFFF" Descrizione="Sezione Firmware APPL" />
+		</Sezioni>
+		<Operazioni_DWNL nome="Cpu">
+			<!--Formato Operazione: XXXXXXXX dove X = 0 (False) o 1 (True)
+			Sequenza da Sinistra verso Destra:
+			WriteCRC_SWDESC,
+			CalcCRC,
+			JumpLoader,
+			Erase,
+			Download,
+			SkipFF,
+			Checksum,
+			Chiave,
+			JumpMain,
+			AttesaRitornoApplicativo-->
+
+			<Operazione ID="0" Sez_Ref="0" funzioni="0010000000" Descrizione="Jump in loader" />
+			<Operazione ID="1" Sez_Ref="12" funzioni="0001000000" Descrizione="Cancellazione APP_SW_DESC" />
+			<Operazione ID="2" Sez_Ref="1" funzioni="0001000000" Descrizione="Cancellazione FW (anche chiave)" />
+			<Operazione ID="6" Sez_Ref="1" funzioni="0000111000" Descrizione="Scrittura FW e chiave" />
+			<Operazione ID="7" Sez_Ref="1" funzioni="0100000000" Descrizione="Calcolo APP_SW_DESC" />
+			<Operazione ID="8" Sez_Ref="12" funzioni="1000110000" Descrizione="Scrittura APP_SW_DESC" />
+			<Operazione ID="9" Sez_Ref="0" funzioni="0000000011" Descrizione="Jump in applicativo"/>
+		</Operazioni_DWNL>
+	</Mappatura>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<Mappatura>
+		<Validita>
+			<FamigliaProd>EM_10DIN</FamigliaProd>
+			<TipoMicro>1</TipoMicro>
+			<VersioniKernel>
+				<VersKernel MIN="3.0.0" MAX="3.255.255" />
+			</VersioniKernel>
+			<VersMasterMin>0.0.0</VersMasterMin>
+			<VersMasterMax>255.255.255</VersMasterMax>
+			<VersConsoleMin>0.0.0</VersConsoleMin>
+			<VersConsoleMax>255.255.255</VersConsoleMax>
+			<TipoConsole>-</TipoConsole>
+		</Validita>
+		<Impostazioni>
+			<FormatoFile>1</FormatoFile>
+			<Slice>256</Slice>
+			<NSkipFF>4</NSkipFF>
+			<ValoreClear>FF</ValoreClear>
+		</Impostazioni>
+		<Sezioni>
+			<!-- Sezioni per il download -->
+			<Sezione ID="0" StartAddress="00000000" EndAddress="00000000" Descrizione="Sezione fittizia" />
+			<Sezione ID="1" StartAddress="08120000" EndAddress="0815FFFF"										Descrizione="Sezione Firmware" />
+		</Sezioni>
+		<S19>
+			<!-- NEWLINE AD OGNI CAMBIO DI SEGMENTO DEFINITO -->
+			<!--newLine>308000</newLin-->
+
+		</S19>
+		<Operazioni_DWNL nome="Cpu">
+			<!--Formato Operazione: XXXXXXXX dove X = 0 (False) o 1 (True)
+			Sequenza da Sinistra verso Destra:
+			JumpKernel,
+			Erase,
+			Download,
+			SkipFF,
+			Checksum,
+			Chiave,
+			JumpMain,
+			AttesaRitornoMain-->
+
+			<Operazione ID="0" Sez_Ref="0" funzioni="10000000" Descrizione="Jump in kernel" />
+			<Operazione ID="1" Sez_Ref="1" funzioni="01000000" Descrizione="Cancellazione FW (anche chiave)" />
+			<Operazione ID="6" Sez_Ref="1" funzioni="00111100" Descrizione="Scrittura FW e chiave" />
+			<Operazione ID="7" Sez_Ref="0" funzioni="00000011" Descrizione="Jump in main"/>
+		</Operazioni_DWNL>
+	</Mappatura>
