@@ -159,6 +159,7 @@ int main(void)
   memset(&buf_ping_tx_0, 0, sizeof(buf_ping_tx_0));
   buf_ping_tx_0.check_word = VALID_W16;
   buf_ping_tx_0.MASTER_ver = MASTER_ver;
+  if (keySWDesc.StartAddress == NULL)	while(1);		//Evitiamo di ottimizzare la variabile keySWDesc necessaria per il boot.
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -179,7 +180,6 @@ int main(void)
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   xUartDebugMutex = osMutexNew(&dbgMutexAttr);
-  gescomRxQueue = xQueueCreate(USB_QUEUE_LENGTH, sizeof(SielMessage_t));
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */

@@ -129,6 +129,7 @@ void prvHandleGescomConnection(uint8_t idx)
 {
     uint8_t ucPacketBuffer[MAX_COM_DATA_UART], cksum;
     uint8_t *tmp;
+    uint8_t prio;
     uint16_t bufLen;
     int32_t lBytesRead;
 	SielMessage_t	msg;
@@ -142,12 +143,17 @@ void prvHandleGescomConnection(uint8_t idx)
         lBytesRead = FreeRTOS_recv(GescomClients[idx], &pucZeroCopyRxBuffPtr, ipconfigTCP_MSS, FREERTOS_ZERO_COPY);
 
         // Gestione errori sui socket
-		if (lBytesRead < 0 && lBytesRead != -pdFREERTOS_ERRNO_EAGAIN)
+		if (lBytesRead < 0)
 		{
 			if (pucZeroCopyRxBuffPtr != NULL)
 				FreeRTOS_ReleaseTCPPayloadBuffer(GescomClients[idx], pucZeroCopyRxBuffPtr, lBytesRead);
-			printf("GESCOM %hu socket ERROR: %ld\n", idx, lBytesRead);
-			break;
+			if(lBytesRead != -pdFREERTOS_ERRNO_EAGAIN)
+			{
+				printf("GESCOM %hu socket ERROR: %ld\n", idx, lBytesRead);
+				break;
+			}
+			else
+				continue;
 		}
 
         if( pucZeroCopyRxBuffPtr != NULL )
@@ -173,14 +179,14 @@ void prvHandleGescomConnection(uint8_t idx)
 					//I dati netti sono i - 1 - 9;
 					msg.netto = &ucPacketBuffer[9];
 					msg.header.len = i - 1 - 9;
-					xQueueSend(gescomRxQueue, &msg, 0);
+					osMessageQueuePut(gescomRxQueue, &msg, 1, osWaitForever);
 					waitForGescomResponse = pdTRUE;
 				}
 			}
     	}
         if (waitForGescomResponse == pdTRUE)
         {
-        	if (xQueueReceive(lgcQueueTx[idx], &msg, portMAX_DELAY) == pdTRUE)
+        	if (osMessageQueueGet(lgcQueueTx[idx], &msg, &prio, osWaitForever ) == osOK)
 			{
 				// Qui il task è stato svegliato da un altro task
 

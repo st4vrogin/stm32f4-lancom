@@ -112,7 +112,7 @@ void UsbCommRxTask(void* argument)
 					//I dati netti sono i - 1 - 9;
 					req.netto = &msgBuffer[9];
 					req.header.len = i - 1 - 9;
-					xQueueSend(gescomRxQueue, &req, 0);
+					osMessageQueuePut(gescomRxQueue, &req, 1, osWaitForever);
 				}
 				sps_status = SPS_WAIT_STX;
 			}
@@ -165,7 +165,7 @@ void UsbCommTxTask(void* argument)
 
 void initUsbTasks(void)
 {
-	usbTxQueue = xQueueCreate(USB_QUEUE_LENGTH, sizeof(SielMessage_t));
+	usbTxQueue = osMessageQueueNew(USB_QUEUE_LENGTH, sizeof(SielMessage_t), NULL);
 	usbStreamBuffer = xStreamBufferCreateStatic(sizeof(usbExchangeBuffer), 1, usbExchangeBuffer, &usbStreamBufferStruct);
 }
 

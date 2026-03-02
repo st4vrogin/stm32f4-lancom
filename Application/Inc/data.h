@@ -77,7 +77,7 @@ EXT EventGroupHandle_t lan2ComEvGroupHandle;
 EXT EventGroupHandle_t com2LanEvGroupHandle;
 
 LDR_INF info_code_check_t keySWDesc
-#ifdef MASTER_DATI_C
+#ifdef COMPILE_DATA
 = {
 	{
 		INFO_CODE_CHECK,
@@ -86,8 +86,8 @@ LDR_INF info_code_check_t keySWDesc
 		24
 	},
 	CHECK_TYPE_KEY64,
-	(uint32 *)0x08120000,
-	(uint32 *)0x0813FFFF,
+	(uint32_t *)0x08120000,
+	(uint32_t *)0x0813FFFF,
 	{0,0,0},
 	0x55AA55AA55AA55AA
 }

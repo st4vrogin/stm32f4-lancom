@@ -8,7 +8,7 @@
 #ifndef COMMON_INC_COMMON_DATA_H_
 #define COMMON_INC_COMMON_DATA_H_
 #include "FreeRTOS.h"
-#include "queue.h"
+#include "cmsis_os2.h"
 #include "stream_buffer.h"
 #include "Protocol/SielDef.h"
 #include "CommonDef.h"
@@ -34,12 +34,12 @@ NOINIT	over_mem_t					over_mem;
 EXT		StreamBufferHandle_t 		usbStreamBuffer;
 EXT		StreamBufferHandle_t 		lgcStreamBufferDp[NUM_GES_COM_LAN];
 EXT		uint8_t 					usbExchangeBuffer[USB_XCHNG_BUF_SIZE];
-EXT 	QueueHandle_t				gescomRxQueue;
-EXT		QueueHandle_t		 		lgcQueueTx[NUM_GES_COM_LAN];
+EXT 	osMessageQueueId_t			gescomRxQueue;
+EXT		osMessageQueueId_t	 		lgcQueueTx[NUM_GES_COM_LAN];
 EXT		comDati_t					*ptrBufCom;					//puntatore al buffer di cominicazione attivo (utilizzato da ApplCodOp)
 EXT		comDati_t					ComDatiGescom;
 EXT 	uint8_t						param_sbanc_ram[PARAM_SBANC_LEN];
-EXT 	QueueHandle_t 				usbTxQueue;
+EXT 	osMessageQueueId_t			usbTxQueue;
 EXT		retu16_funcu8 				pApplCodop;
 EXT		systmr_b_5ms_t				systmr_b_5ms;
 EXT		void_func					pApplServersStop;

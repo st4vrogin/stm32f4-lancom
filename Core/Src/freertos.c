@@ -60,23 +60,12 @@ extern osMutexId_t xUartDebugMutex;
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 #ifdef UART_DEBUG
-int __io_putchar(int ch)
-{
-	uint8_t myChar = (uint8_t)ch;
-	HAL_UART_Transmit(&huart1, (uint8_t*)&myChar, 1, 1000);
-	return ch;
-}
-
 int _write(int file, char *ptr, int len)
 {
 	(void)file;
-	int DataIdx;
 	if (xUartDebugMutex != NULL && osMutexAcquire(xUartDebugMutex, osWaitForever) == osOK)
 	{
-		for (DataIdx = 0; DataIdx < len; DataIdx++)
-		{
-			__io_putchar(*ptr++);
-		}
+		HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, 1000);
 		osMutexRelease(xUartDebugMutex);
 	}
 	return len;

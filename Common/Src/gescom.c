@@ -97,10 +97,12 @@ void gesComRtosTask(void* argument)
 	uint16_t rispLen;
 	uint8_t tmp[ADDR_LEN];
 	SielMessage_t msg;
+	uint8_t prio;
 	initTaskGesCom();
+	printf("gescom RX Ready");
 	for(;;)
 	{
-		if (xQueueReceive(gescomRxQueue, &msg, portMAX_DELAY) == pdTRUE)
+		if (osMessageQueueGet(gescomRxQueue, &msg, &prio, osWaitForever) == osOK)
 		{
 			// Qui il task è stato svegliato dalla ricezione di un messaggio da parte di un altro task
 			if (msg.header.len == 0 || msg.netto == NULL)
@@ -114,38 +116,35 @@ void gesComRtosTask(void* argument)
 			if (memcmp(msg.dest, over_mem.AddressScheda, ADDR_LEN) || msg.gestore != 0x20)
 				continue;
 
-			if (xSemaphoreTake(GescomMutex, (TickType_t)20) == pdTRUE)
-			{
+			printf("GESCOM Messaggio da %hu (%hu%hu%hu) a %hu (%hu%hu%hu) cod_op %hu\n", msg.header.from, msg.mitt[0], msg.mitt[1], msg.mitt[2], msg.header.to, msg.dest[0], msg.dest[1], msg.dest[2], msg.cod_op);
+			//Memorizzo su ComDatiGescom la richiesta immagazzinata in msg
+			ComDatiGescom.buf.cmd.gestore = msg.gestore;
+			memcpy(ComDatiGescom.buf.cmd.dest, msg.mitt, ADDR_LEN);
+			memcpy(ComDatiGescom.buf.cmd.mitt, msg.dest, ADDR_LEN);
+			ComDatiGescom.buf.cmd.cod_op = msg.cod_op;
+			ComDatiGescom.buf.cmd.flag = msg.flag;
+			memcpy(ComDatiGescom.buf.cmd.dati, msg.netto, msg.header.len);
 
-				//Memorizzo su ComDatiGescom la richiesta immagazzinata in msg
-				ComDatiGescom.buf.cmd.gestore = msg.gestore;
-				memcpy(ComDatiGescom.buf.cmd.dest, msg.mitt, ADDR_LEN);
-				memcpy(ComDatiGescom.buf.cmd.mitt, msg.dest, ADDR_LEN);
-				ComDatiGescom.buf.cmd.cod_op = msg.cod_op;
-				ComDatiGescom.buf.cmd.flag = msg.flag;
-				memcpy(ComDatiGescom.buf.cmd.dati, msg.netto, msg.header.len);
+			//Eseguo il codice operativo
+			if (pApplCodop != NULL && ComDatiGescom.buf.cmd.cod_op >= 0x20)
+				rispLen = pApplCodop(ComDatiGescom.buf.cmd.cod_op);
+			else
+				rispLen = GesCodOp(ComDatiGescom.buf.cmd.cod_op);
 
-				//Eseguo il codice operativo
-				if (pApplCodop != NULL && ComDatiGescom.buf.cmd.cod_op >= 0x20)
-					rispLen = pApplCodop(ComDatiGescom.buf.cmd.cod_op);
-				else
-					rispLen = GesCodOp(ComDatiGescom.buf.cmd.cod_op);
-
-				//Preparo la risposta
-				msg.header.len = rispLen;
-				tmp[0] = msg.header.from;
-				msg.header.from = msg.header.to;
-				msg.header.to = tmp[0];
-				memcpy(tmp, msg.mitt, ADDR_LEN);
-				memcpy(msg.mitt, msg.dest, ADDR_LEN);
-				memcpy(msg.dest, tmp, ADDR_LEN);
-				msg.cod_op = ComDatiGescom.buf.cmd.cod_op + 1;
-				msg.flag = ComDatiGescom.buf.risp.flag;
-				msg.netto = ComDatiGescom.buf.risp.dati;
-				//Scrivo la risposta
-				gcWriteResponse(&msg);
-				xSemaphoreGive(GescomMutex);
-			}
+			//Preparo la risposta
+			msg.header.len = rispLen;
+			tmp[0] = msg.header.from;
+			msg.header.from = msg.header.to;
+			msg.header.to = tmp[0];
+			memcpy(tmp, msg.mitt, ADDR_LEN);
+			memcpy(msg.mitt, msg.dest, ADDR_LEN);
+			memcpy(msg.dest, tmp, ADDR_LEN);
+			msg.cod_op = ComDatiGescom.buf.cmd.cod_op + 1;
+			msg.flag = ComDatiGescom.buf.risp.flag;
+			msg.netto = ComDatiGescom.buf.risp.dati;
+			printf("GESCOM Sending response to %hu cod_op %hu, len %u\n", msg.header.to, msg.cod_op, rispLen);
+			//Scrivo la risposta
+			gcWriteResponse(&msg);
 
 		}
 	}
@@ -159,6 +158,7 @@ void gesComRtosTask(void* argument)
  */
 void	initTaskGesCom(void)
 {
+	gescomRxQueue = osMessageQueueNew(USB_QUEUE_LENGTH, sizeof(SielMessage_t), NULL);
 	ptrBufCom = &ComDatiGescom;
 	// TODO: Temporaneamente inizializzo l'indirizzo della scheda
 	if(over_mem.check_word != VALID_W16)
@@ -191,12 +191,12 @@ void gcWriteResponse(SielMessage_t *resp)
 	switch(resp->header.to)
 	{
 		case ENTITY_USB:
-			xQueueSend(usbTxQueue, resp, 0);
+			osMessageQueuePut(usbTxQueue, resp, 1, osWaitForever);
 			break;
 		case ENTITY_LAN_GES_0:
 		case ENTITY_LAN_GES_1:
 		case ENTITY_LAN_GES_2:
-			xQueueSend(lgcQueueTx[resp->header.to - ENTITY_LAN_GES_0], resp, 0);
+			osMessageQueuePut(lgcQueueTx[resp->header.to - ENTITY_LAN_GES_0], resp, 1, osWaitForever);
 			break;
 		default:
 			break;
